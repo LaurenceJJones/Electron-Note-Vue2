@@ -1,0 +1,27 @@
+{
+  "name": "NoteComplier",
+  "version": "2.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron-webpack dev",
+    "build": "electron-webpack && electron-builder"
+  },
+  "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.4.1",
+    "electron": "^3.0.2",
+    "electron-builder": "^20.28.4",
+    "electron-store": "^2.0.0",
+    "electron-webpack": "^2.3.1",
+    "vue": "^2.5.17",
+    "vue-html-loader": "^1.2.4",
+    "vue-loader": "^15.4.2",
+    "vue-template-compiler": "^2.5.17",
+    "webpack": "^4.20.2"
+  },
+  "dependencies": {
+    "bulma": "^0.7.1",
+    "moment": "^2.22.2",
+    "source-map-support": "^0.5.9"
+  }
+}
