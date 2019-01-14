@@ -29,9 +29,6 @@ import na from './components/na.vue';
 import todo from './components/todo.vue';
 import reminderMain from './components/reminderMain.vue';
 import newReminder from './components/reminder.vue';
-import json from '../../history.json';
-import todos from '../../todo.json';
-import reminders from '../../reminder.json';
 
 const fs = require('fs');
 const moment = require('moment');
@@ -51,9 +48,9 @@ export default {
       naShow : false,
       todoShow : false,
       reminderShow: false,
-      obj : null,
-      todoList : null,
-      reminderList: null
+      obj : {"table":[]},
+      todoList : [],
+      reminderList: []
     }
   },
   components: {
@@ -97,7 +94,11 @@ export default {
       if (data){
         this.obj.table.push(data);
       }else {
-        this.obj = json;
+        if (fs.existsSync('./history.json')) {
+          fs.readFile('history.json', 'utf8', (err, data) => {
+            this.obj = JSON.parse(data);
+          });
+        }
       }
     },
     mountTodo(data){
@@ -105,7 +106,11 @@ export default {
         this.todoList.push(data);
         this.writeTodo();
       }  else {
-        this.todoList = todos;
+        if (fs.existsSync('./todo.json')) {
+          fs.readFile('todo.json', 'utf8', (err, data) => {
+            this.todoList = JSON.parse(data);
+          });
+        }
       }
     },
     writeTodo(){
@@ -118,23 +123,35 @@ export default {
             });
           }
         });
+      }else {
+        fs.writeFile('todo.json', JSON.stringify(this.todoList), 'utf8', err => {
+          if (err) throw err;
+        });
       }
     },
     mountReminder(data){
       if (data){
         this.reminderList.push(data);
         if (fs.existsSync('./reminder.json')) {
-        fs.readFile('reminder.json', 'utf8', (err, data) => {
-          if (err) throw err;
-          else {
-            fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
-              if (err) throw err;
-            });
-          }
-        });
-      }
+          fs.readFile('reminder.json', 'utf8', (err, data) => {
+            if (err) throw err;
+            else {
+              fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+                if (err) throw err;
+              });
+            }
+          });
+        } else {
+          fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+            if (err) throw err;
+          });
+        }
       }else {
-        this.reminderList = reminders;
+        if (fs.existsSync('./reminder.json')) {
+          fs.readFile('reminder.json', 'utf8', (err, data) => {
+            this.reminderList = JSON.parse(data);
+          });
+        }
       }
     },
     resetUser(){

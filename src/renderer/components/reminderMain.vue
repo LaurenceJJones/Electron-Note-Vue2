@@ -2,7 +2,7 @@
 <div class="container">
   <nav class="panel is-unselectable">
     <p class="panel-heading">
-      Reminders {{selectedDay}}
+      Reminders
       <button class="button is-rounded is-link  is-pulled-right" @click="reminderShow">
         <p>New Remimder</p>
       </button>
@@ -33,7 +33,7 @@ export default {
   data() {
     return {
       showComp: false,
-      selectedDay: moment().format('YYYY-MM-DD'),
+      selectedDay: null,
       count: 2,
       dates: []
     }
@@ -41,7 +41,6 @@ export default {
   methods: {
     colour(time){
       let currentTime = moment().format('HH:mm');
-      console.log(moment(time).isBefore(currentTime));
       if (moment(time).isAfter(currentTime, 'minute')){
         return  'is-danger'
       }else{
@@ -57,28 +56,37 @@ export default {
     },
     reminderShow() {
       this.$emit('reminderShow');
+    },
+    datePush(){
+      this.dates = [];
+      for (let i = 1; i < this.count + 1; i++) {
+        this.dates.unshift({
+          'day': moment().subtract(i, 'days').format('ddd Do MMM'),
+          'alt': moment().subtract(i, 'days').format('YYYY-MM-DD'),
+          'active': false
+        });
+      }
+      this.dates.push({
+        'day': 'Today',
+        'alt': moment().format('YYYY-MM-DD'),
+        'active': true
+      });
+      for (let i = 1; i < this.count + 1; i++) {
+        this.dates.push({
+          'day': moment().add(i, 'days').format('ddd Do MMM'),
+          'alt': moment().add(i, 'days').format('YYYY-MM-DD'),
+          'active': false
+        });
+      }
+      let end = moment().endOf('day').add(1, 'minute');
+      let now = moment();
+      let diff  = end.diff(now);
+      setTimeout(this.datePush, diff);
     }
   },
   beforeMount() {
-    for (let i = 1; i < this.count + 1; i++) {
-      this.dates.unshift({
-        'day': moment().subtract(i, 'days').format('ddd Do MMM'),
-        'alt': moment().subtract(i, 'days').format('YYYY-MM-DD'),
-        'active': false
-      });
-    }
-    this.dates.push({
-      'day': 'Today',
-      'alt': moment().format('YYYY-MM-DD'),
-      'active': true
-    });
-    for (let i = 1; i < this.count + 1; i++) {
-      this.dates.push({
-        'day': moment().add(i, 'days').format('ddd Do MMM'),
-        'alt': moment().add(i, 'days').format('YYYY-MM-DD'),
-        'active': false
-      });
-    }
+    this.datePush();
+    this.selectedDay = moment().format('YYYY-MM-DD');
   }
 }
 </script>

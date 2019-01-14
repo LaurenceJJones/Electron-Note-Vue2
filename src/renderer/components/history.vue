@@ -6,9 +6,11 @@
       <p class="modal-card-title">History</p>
       <button class="delete" aria-label="close" @click="close" ></button>
     </header>
-    <section class="modal-card-body unsetheight">
-      <cell v-if="historys.length > 0" v-for="(history, index) in historys.slice().reverse()" :key="index"><p>{{history.name}} - {{history.notes}} - {{history.date}}</p></cell>
-      <p v-else>no historys</p>
+    <section class="modal-card-body unsetheight" v-if="historys.length > 0">
+      <cell v-for="(history, index) in historys.slice().reverse()" :key="index"><p>{{history.name}} - {{history.notes}} - {{history.date}}</p></cell>
+    </section>
+    <section class="modal-card-body unsetheight" v-else>
+      <p>no historys</p>
     </section>
   </div>
 </div>
