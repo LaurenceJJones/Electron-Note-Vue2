@@ -7,11 +7,17 @@
       <button class="delete" aria-label="close" @click="close"></button>
     </header>
     <section class="modal-card-body">
-      <article :class="['message',{'is-link' :!todo.comp},{'is-danger' : todo.comp},'is-small']" v-for="(todo, index) in todoList" @click="compTodo(index)" v-if="!todo.comp && !showComp || showComp && todo.comp">
+      <transition-group
+            enter-active-class="animated bounceInLeft"
+            leave-active-class="animated bounceOutRight"
+            mode="out-in"
+            >
+      <article :class="['message',{'is-primary' :!todo.comp},{'is-danger' : todo.comp},'is-small']" v-for="(todo, index) in todoList" @click="compTodo(index)" v-if="!todo.comp && !showComp || showComp && todo.comp" :key="todo">
         <div class="message-body">
           {{todo.todo}}
         </div>
       </article>
+      </transition-group>
     </section>
     <footer class="modal-card-foot">
       <div class="field is-grouped">
@@ -19,7 +25,7 @@
           <input class="input is-rounded" type="text" placeholder="New Todo" v-model="todo">
         </p>
         <p class="control">
-          <a class="button is-info" @click="addTodo">
+          <a class="button is-primary" @click="addTodo">
             Add New
           </a>
         </p>

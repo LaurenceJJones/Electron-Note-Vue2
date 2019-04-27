@@ -1,10 +1,10 @@
 <template>
 <div class="container">
   <nav class="panel is-unselectable">
-    <p class="panel-heading">
+    <p class="panel-heading is-lh2">
       Reminders
-      <button class="button is-rounded is-link  is-pulled-right" @click="reminderShow">
-        <p>New Remimder</p>
+      <button class="button is-rounded is-primary is-pulled-right" @click="reminderShow">
+        <p><i class="fas fa-calendar-plus"></i> New Remimder</p>
       </button>
     </p>
     <p class="panel-tabs is-center">
@@ -16,9 +16,31 @@
     </p>
     <div class="panel-block">
       <div class="content">
-        <article v-for="(reminder, index) in reminders" :class="['message', colour(reminder.time)]" v-if="reminder.date === selectedDay" :key="index">
-          <div class="message-body">{{reminder.customerName}} - {{reminder.time}}</div>
-        </article>
+        <transition-group
+            enter-active-class="animated bounceInLeft"
+            leave-active-class="animated bounceOutRight"
+            mode="in-out"
+          >
+          <article v-for="reminder in filteredReminders" :class="['message', reminder.class]" :key="reminder.time">
+            <div class="message-body reminder-slot has-text-black">{{reminder.customerName}} - {{reminder.time}}
+              <div class="field is-grouped is-pulled-right reminder-icons">
+                <div class="control"><span class="icon is-medium has-text-success" @click="reminderComp(reminder.orgIndex)" v-if="!reminder.comp"><i class="fas fa-1x fa-check-square"></i></span></div>
+                  <div class="control">
+                    <span class="icon is-medium has-text-warning" @click="stopwatch"><i class="fas fa-1x fa-stopwatch"></i></span>
+                    <div class="select is-multiple"  style="display:none;">
+                      <select multiple size="4" @mouseleave.self="showStop" @click="snooze(reminder.orgIndex)" v-model="selectSnooze">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="15">15</option>
+                        <option value="20">20</option>
+                      </select>
+                    </div>
+                  </div>
+                <div class="control"><span class="icon is-medium has-text-danger" @click="reminderDelete(reminder.orgIndex)"><i class="fas fa-1x fa-times-circle"></i></span></div>
+              </div>
+            </div>
+          </article>
+        </transition-group>
       </div>
     </div>
   </nav>
@@ -35,18 +57,20 @@ export default {
       showComp: false,
       selectedDay: null,
       count: 2,
-      dates: []
+      dates: [],
+      selectSnooze: []
+    }
+  },
+  computed: {
+    filteredReminders(){
+      let filteredReminders = this.reminders.filter((reminder,index) => {
+        reminder.orgIndex = index;
+        return reminder.date === this.selectedDay && reminder.comp === this.showComp;
+      });
+      return filteredReminders
     }
   },
   methods: {
-    colour(time){
-      let currentTime = moment().format('HH:mm');
-      if (moment(time).isAfter(currentTime, 'minute')){
-        return  'is-danger'
-      }else{
-        return  'is-info'
-      }
-    },
     dateActive(index) {
       for (let i = 0; i < this.dates.length; i++) {
         this.dates[i].active = false;
@@ -81,16 +105,41 @@ export default {
       let end = moment().endOf('day').add(1, 'minute');
       let now = moment();
       let diff  = end.diff(now);
+      this.selectedDay = moment().format('YYYY-MM-DD');
       setTimeout(this.datePush, diff);
+    },
+    stopwatch(e){
+      if (e.target.className === "fas fa-1x fa-stopwatch"){
+        e.target.parentElement.nextElementSibling.style.display = "inline-flex";
+        e.target.parentNode.style.display = "none";
+      }else{
+        e.target.nextElementSibling.style.display = "inline-flex";
+        e.target.style.display = "none";
+      }
+    },
+    showStop(e){
+      e.target.parentNode.previousElementSibling.style.display = "inline-flex";
+      e.target.parentNode.style.display = "none";
+      this.selectSnooze = [];
+    },
+    snooze(index){
+      this.$emit('snoozeIndex', index, this.selectSnooze);
+    },
+    reminderComp(index){
+        this.$emit('reminderComp', index);
+      },
+      reminderDelete(index){
+        this.$emit('reminderDelete', index);
     }
   },
   beforeMount() {
     this.datePush();
-    this.selectedDay = moment().format('YYYY-MM-DD');
   }
 }
 </script>
 
 <style>
-
+.field.is-grouped.is-pulled-right.reminder-icons{display:none;}
+.message-body.reminder-slot:hover .field.is-grouped.is-pulled-right.reminder-icons{display: flex;}
+.field.is-grouped.reminder-icons > .control {width: 47px;}
 </style>

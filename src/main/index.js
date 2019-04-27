@@ -1,44 +1,37 @@
 const {
   app,
   BrowserWindow
-} = require('electron')
+} = require('electron');
+const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const Store = require('electron-store');
-const store = new Store({
-  // We'll call our data file 'user-preferences'
-  configName: 'user-preferences',
-  defaults: {
-    // 800x600 is the default size of our window
-    windowBounds: {
-      width: 730,
-      height: 1000
-    }
+const dotenv = require('dotenv');
+dotenv.config();
+if (fs.existsSync('./.env.override')) {
+  let envConfig = dotenv.parse(fs.readFileSync('.env.override'));
+  for (let k in envConfig) {
+    process.env[k] = envConfig[k]
   }
-});
+}else{
+  fs.writeFile('.env',`DB_USER=''`, 'utf8', err => {
+    if (err) throw err;
+  });
+}
 const isDevelopment = process.env.NODE_ENV !== 'production';
-
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
-
 function createWindow() {
   // First we'll get our height and width. This will be the defaults if there wasn't anything saved
-  let {
-    width,
-    height
-  } = store.get('windowBounds');
-
   // Pass those values in to the BrowserWindow options
-  win = new BrowserWindow({
-    width,
-    height,
-    //titleBarStyle: 'hidden'
-  });
 
+  win = new BrowserWindow({
+    width: 800,
+    height: 600
+  });
+  
   if (isDevelopment) {
     win.loadURL(`http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`);
-    console.log("config path " + store.path);
   } else {
     win.loadURL(url.format({
       pathname: path.join(__dirname, 'index.html'),
@@ -60,21 +53,20 @@ function createWindow() {
   win.on('resize', () => {
     // The event doesn't pass us the window size, so we call the `getBounds` method which returns an object with
     // the height, width, and x and y coordinates.
+    let resize;
     let {
       width,
       height
     } = win.getBounds();
-    // Now that we have them, save them using the `set` method.
-    store.set('windowBounds', {
-      width,
-      height
-    });
-  });
+    function resizedw() {
+      fs.writeFile('config.json', `{"width":${width}, "height": ${height}}`, 'utf8', err => {
+        if (err) throw err;
+      });
+    }
+    clearTimeout(resize);
+    resize = setTimeout(resizedw, 2000);
+  })
 }
-
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
 
 // Quit when all windows are closed.
@@ -93,6 +85,3 @@ app.on('activate', () => {
     createWindow()
   }
 })
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.

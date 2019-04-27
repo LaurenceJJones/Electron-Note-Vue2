@@ -1,0 +1,115 @@
+html,
+body {
+    height: 100%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+.container .panel > .panel-block {
+    height: 400px;
+    overflow: hidden;
+    overflow-y: scroll;
+    display: block !important;
+}
+
+.modal-card-body {
+    height: 300px;
+}
+
+.unsetheight {
+    height: unset !important;
+}
+
+.is-center {
+    text-align: center;
+    justify-content: center;
+}
+
+.is-selectable {
+    user-select: text;
+}
+.input,
+.textarea {
+    width: unset !important;
+}
+
+.field.is-grouped {
+    margin-right: 15px;
+}
+
+.box>.tag {
+    position: absolute;
+}
+.box:hover > .tag{
+    
+}
+#sb .modal-card-body,
+.tile .is-parent,
+.tile,
+.tile .is-child,
+.tile .is-child > .box {
+    padding: 0px;
+    height: 100%;
+}
+#sb .tile .is-child .panel {
+    height: 500px;
+}
+#sb .modal-card-body,
+.tile .is-parent>.tile,
+.tile .is-child .panel .is-clipped,
+.tile .is-child .box>textarea {
+    height: 100%;
+}
+#sb .has-fixed-size .textarea:active , #sb .has-fixed-size .textarea:focus {
+    border-color: none !important;
+}
+#sb .modal-card{
+    width: 80%;
+    height: 70%;
+}
+#sb .panel-heading{
+    display: inline-flex;
+}
+.is-clipped{
+    overflow-y: scroll !important;
+}
+.is-lh2{
+    line-height: 1.75;
+}
+#coll .box {
+    height: 200px;
+    width: 200px;
+    padding: 0;
+    display: inline-block;
+}
+#coll .box.master {
+    text-align: center;
+    color: white;
+    background-color: gray;
+    margin: 25px 40px;
+}
+#coll .box .content ul{
+    list-style: none;
+    text-align: left;
+}
+#coll .modal-card-body{
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#coll .modal-card-body .content{
+    text-align: center;
+}
+#coll .modal-card-body .content .icon{
+    margin: 30% auto;
+}
+
+@media screen and (min-width: 1088px) {
+    .navbar,
+    .navbar-menu,
+    .navbar-start,
+    .navbar-end {
+        display: block !important;
+    }
+}

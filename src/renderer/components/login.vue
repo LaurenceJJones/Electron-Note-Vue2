@@ -1,15 +1,21 @@
 <template>
-  <div class="container">
-    <div class="field">
-      <label class="label">Login</label>
-      <input class="input is-rounded" type="text" placeholder="Username" v-model="user">
-    </div>
-    <div class="field is-grouped">
-      <div class="control">
-        <button class="button is-rounded is-link" @click="setUser">Confirm</button>
+  <div class="card" style="margin: 20em auto;">
+  <div class="card-content">
+    <div class="content">
+      <div class="container">
+        <div class="field">
+          <label class="label is-medium" >Login</label>
+          <input class="input is-rounded is-medium" type="text" placeholder="Username" v-model="user">
+        </div>
+        <div class="field">
+          <div class="control">
+            <button class="button is-rounded is-primary is-medium" @click="setUser">Confirm</button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script>

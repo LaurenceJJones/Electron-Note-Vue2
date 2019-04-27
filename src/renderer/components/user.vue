@@ -10,9 +10,9 @@
     </div>
     <div class="dropdown-menu" id="dropdown-menu" role="menu">
       <div class="dropdown-content">
-        <div class="dropdown-item">
+        <!-- <div class="dropdown-item">
           <a class="button is-info is-rounded is-outlined">System Config</a>
-        </div>
+        </div> -->
         <div class="dropdown-item">
           <hr class="dropdown-divider">
           <a class="button is-danger is-rounded is-outlined" @click="resetUser">Reset User</a>
@@ -23,6 +23,7 @@
 </template>
 
 <script>
+const fs = require('fs');
 export default {
   data: () => ({
 

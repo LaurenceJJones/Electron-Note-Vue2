@@ -24,7 +24,7 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-rounded is-link  is-pulled-right" @click="addReminder">
+      <button class="button is-rounded is-primary is-pulled-right" @click="addReminder">
         <p>Add Remimder</p>
       </button>
     </footer>
@@ -63,7 +63,8 @@ export default {
           'date': this.currentDate,
           'time': this.currentTime,
           'customerName': this.customerName,
-          'comp' : false
+          'comp' : false,
+          'class': 'is-primary'
         });
         this.close();
       }

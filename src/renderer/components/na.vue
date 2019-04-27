@@ -54,7 +54,7 @@
         <div class="field-body">
           <div class="field">
             <div class="control">
-              <button class="button is-info">
+              <button class="button is-primary">
                 Copy
               </button>
             </div>

@@ -9,19 +9,22 @@
   <div class="field">
     <label class="label is-unselectable">Notes</label>
     <div class="control">
-      <textarea id="note" class="textarea has-fixed-size" type="text" placeholder="Notes" v-model="notes" @keyup.enter.shift="copy" @keyup.enter.ctrl="clear(true)"></textarea>
+      <textarea id="note" class="textarea has-fixed-size" type="text" placeholder="Notes" v-model="notes" @keyup.enter.ctrl="copy" @keyup.enter.shift="clear(true)"></textarea>
     </div>
   </div>
   <div class="field is-grouped">
     <div class="control">
-      <button class="button is-rounded is-link" @click="copy"><p><i class="far fa-clipboard"></i> Copy</p></button>
+      <button class="button is-rounded is-primary" @click="copy"><p><i class="far fa-clipboard"></i> Copy</p></button>
     </div>
     <div class="control">
       <button class="button is-rounded is-danger" @click="clear(true)"><p><i class="fas fa-times"></i> Clear</p></button>
     </div>
     <div class="control">
-      <button class="button is-rounded is-info" @click="showClick" v-if="!restored"><p><i class="far fa-list-alt"></i> Recent Notes</p></button>
+      <button class="button is-rounded is-link" @click="showClick" v-if="!restored"><p><i class="far fa-list-alt"></i> Recent Notes</p></button>
       <button class="button is-rounded is-success" v-else>Restored Note {{indexRestored + 1}}</button>
+    </div>
+    <div class="control">
+      <button class="button is-rounded is-info" @click="naShow"><p><i class="fas fa-phone-slash"></i> No Answer?</p></button>
     </div>
   </div>
   <recentApp @restoreNote="restoreNote" @close="showClick" :show="show" :recents="recent"></recentApp>
@@ -159,6 +162,9 @@ export default {
     },
     setFocus(){
       document.getElementById('note').focus();
+    },
+    naShow(){
+      this.$emit('naShow');
     }
   }
 }

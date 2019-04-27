@@ -20,8 +20,11 @@
     "webpack": "^4.20.2"
   },
   "dependencies": {
+    "animate.css": "^3.7.0",
     "bulma": "^0.7.1",
+    "dotenv": "^7.0.0",
     "moment": "^2.22.2",
+    "node-notifier": "^5.4.0",
     "source-map-support": "^0.5.9"
   }
 }
