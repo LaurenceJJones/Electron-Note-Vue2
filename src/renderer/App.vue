@@ -158,11 +158,7 @@ export default {
     mountReminder(data){
       if (data){
         this.reminderList.push(data);
-        if (fs.existsSync('./reminder.json')) {
-          this.reminderFunc();
-        } else {
-          this.reminderFunc();
-        }
+        this.reminderFunc();
       }else {
         if (fs.existsSync('./reminder.json')) {
           fs.readFile('reminder.json', 'utf8', (err, data) => {
@@ -205,16 +201,9 @@ export default {
       this.reminderFunc();
     },
     reminderFunc(){
-      if (fs.existsSync('./reminder.json')){
-        fs.readFile('reminder.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            else {
-              fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
-                if (err) throw err;
-              });
-            }
-          });
-      }
+      fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+        if (err) throw err;
+      });
     },
     checkTime(){
       for(let i = 0; i < this.reminderList.length; i++){
@@ -255,7 +244,7 @@ export default {
       let now = moment();
       let diff  = end.diff(now);
       setTimeout(this.checkTime, diff);
-      this.reminderFunc();
+      if(fs.existsSync('./reminder.json')){this.reminderFunc();}
     }
   },
   beforeMount() {

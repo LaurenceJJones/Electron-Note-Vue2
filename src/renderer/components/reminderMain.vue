@@ -8,8 +8,8 @@
       </button>
     </p>
     <p class="panel-tabs is-center">
-      <a :class="{'is-active': !showComp}" @click="showComp = false">Active</a>
-      <a :class="{'is-active': showComp}" @click="showComp = true">Completed</a>
+      <a :class="{'is-active': !showComp}" @click="showComp = false">Active ({{actNum}})</a>
+      <a :class="{'is-active': showComp}" @click="showComp = true">Completed ({{compNum}})</a>
     </p>
     <p class="panel-tabs is-center">
       <a v-for="(date, index) in dates" :key="index" :class="{'is-active': date.active}" @click="dateActive(index)">{{date.day}}</a>
@@ -58,14 +58,27 @@ export default {
       selectedDay: null,
       count: 2,
       dates: [],
-      selectSnooze: []
+      selectSnooze: [],
+      compNum: 0,
+      actNum: 0
     }
   },
   computed: {
     filteredReminders(){
-      let filteredReminders = this.reminders.filter((reminder,index) => {
+      let today = this.reminders.filter((reminder,index) => {
         reminder.orgIndex = index;
-        return reminder.date === this.selectedDay && reminder.comp === this.showComp;
+        return reminder.date === this.selectedDay;
+      });
+      let comp = 0;
+      let i = today.map((reminder) => {
+        if (reminder.comp === true){
+          comp += 1;
+        }
+      });
+      this.compNum = comp;
+      this.actNum = today.length - comp;
+      let filteredReminders = today.filter((reminder) => {
+        return reminder.comp === this.showComp;
       });
       return filteredReminders
     }
