@@ -201,9 +201,11 @@ export default {
       this.reminderFunc();
     },
     reminderFunc(){
-      fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
-        if (err) throw err;
-      });
+      if(fs.existsSync('./reminder.json')){
+        fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+          if (err) throw err;
+        });
+      }
     },
     checkTime(){
       for(let i = 0; i < this.reminderList.length; i++){
@@ -243,15 +245,19 @@ export default {
       let end = moment().endOf('minute');
       let now = moment();
       let diff  = end.diff(now);
-      setTimeout(this.checkTime, diff);
-      if(fs.existsSync('./reminder.json')){this.reminderFunc();}
+      setTimeout(() => {
+      this.checkTime();
+      this.reminderFunc();
+      }, diff);
     }
   },
-  beforeMount() {
+  created() {
     this.mountReminder(false);
     this.mountTodo(false);
     this.mountHistory(false);
     this.user = store.get('user');
+  },
+  mounted(){
     this.checkTime();
   }
 }
