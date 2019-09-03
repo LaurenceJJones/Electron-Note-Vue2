@@ -5,18 +5,19 @@ const {
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const dotenv = require('dotenv');
-dotenv.config();
-if (fs.existsSync('./.env.override')) {
-  let envConfig = dotenv.parse(fs.readFileSync('.env.override'));
-  for (let k in envConfig) {
-    process.env[k] = envConfig[k]
+const Store = require('../store.js');
+const store = new Store({
+  // We'll call our data file 'user-preferences'
+  configName: 'config',
+  defaults: {
+    // 800x600 is the default size of our window
+    bounds: { width: 800, height: 600 },
+    user: '',
+    qt:[
+      {name: "PDF", colour:"is-danger"}
+    ]
   }
-}else{
-  fs.writeFile('.env',`DB_USER=''`, 'utf8', err => {
-    if (err) throw err;
-  });
-}
+});
 const isDevelopment = process.env.NODE_ENV !== 'production';
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -24,10 +25,10 @@ let win;
 function createWindow() {
   // First we'll get our height and width. This will be the defaults if there wasn't anything saved
   // Pass those values in to the BrowserWindow options
-
+  let { width, height } = store.get('bounds');
   win = new BrowserWindow({
-    width: 800,
-    height: 600
+    width: width,
+    height: height
   });
   
   if (isDevelopment) {
@@ -53,21 +54,16 @@ function createWindow() {
   win.on('resize', () => {
     // The event doesn't pass us the window size, so we call the `getBounds` method which returns an object with
     // the height, width, and x and y coordinates.
-    let resize;
     let {
       width,
       height
     } = win.getBounds();
-    function resizedw() {
-      fs.writeFile('config.json', `{"width":${width}, "height": ${height}}`, 'utf8', err => {
-        if (err) throw err;
-      });
-    }
-    clearTimeout(resize);
-    resize = setTimeout(resizedw, 2000);
+    store.set('bounds', {width , height});
   })
 }
-app.on('ready', createWindow)
+app.on('ready', () => {
+  createWindow();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', () => {

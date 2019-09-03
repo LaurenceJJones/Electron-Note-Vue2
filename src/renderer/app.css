@@ -113,3 +113,6 @@ body {
         display: block !important;
     }
 }
+.field:not(:last-child) {
+    margin-right: 1rem;
+}

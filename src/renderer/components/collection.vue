@@ -7,8 +7,8 @@
         <button class="delete" aria-label="close" @click="close"></button>
       </header>
       <section class="modal-card-body">
-        <template v-if="!edit" v-for="(collection, key, index) in collections">
-          <collection-master :key="key" :index="index" :collection="collection" :theKey="key" @add="addName" @changeKey="changeKey"/>
+        <template v-if="!edit" v-for="(collection, key) in collections">
+          <collection-master :key="key" :collection="collection" :theKey="key" @add="addName" @changeKey="changeKey" @complete="removeKey"/>
         </template>
       </section>
     <footer class="modal-card-foot">
@@ -39,13 +39,16 @@ import collectionMaster from './collectionMaster.vue';
       close() {
         this.$emit('close');
       },
+      removeKey(oldKey){
+        delete this.collections[oldKey];
+        this.edit = !this.edit;
+        this.edit = !this.edit;
+        this.writeColl();
+      },
       changeKey(newKey, oldKey){
             Object.defineProperty(this.collections, newKey,
                 Object.getOwnPropertyDescriptor(this.collections, oldKey));
-            delete this.collections[oldKey];
-            this.edit = !this.edit;
-            this.edit = !this.edit;
-            this.writeColl();
+            this.removeKey(oldKey)
       },
       addName(name , index){
         this.collections[index].push(name);
@@ -54,9 +57,9 @@ import collectionMaster from './collectionMaster.vue';
       addNew(){
         if (this.collections[""] === undefined){
           this.collections[""] = [];
+          this.edit = !this.edit;
+          this.edit = !this.edit;
         }
-        this.edit = !this.edit;
-        this.edit = !this.edit;
       },
       writeColl(){
         if (fs.existsSync('./collection.json')) {

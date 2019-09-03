@@ -4,6 +4,9 @@
             <div class="is-inline-flex">
                 <p v-if="!edit">{{theKey}}</p>
                 <input type="text" v-else v-model="currentKey">
+                <span class="icon has-text-white" @click="complete" v-if="!edit">
+                    <i class="far fa-check-square"></i>
+                </span>
                 <span class="icon has-text-white" @click="editMode" v-if="!edit">
                     <i class="fas fa-pencil-alt"></i>
                 </span>
@@ -53,6 +56,9 @@ export default {
                 this.$emit('add', this.currentAdd , this.theKey);
                 this.currentAdd = '';
             }
+        },
+        complete(){
+            this.$emit('complete', this.theKey)
         }
     }
 }

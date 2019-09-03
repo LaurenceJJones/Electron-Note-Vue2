@@ -42,7 +42,10 @@ import urls from './components/urls.vue';
 const fs = require('fs');
 const moment = require('moment');
 const notifier = require('node-notifier');
-const dotenv = require('dotenv');
+const Store = require('../store.js');
+const store = new Store({
+  configName: 'config'
+});
 
 export default {
   data(){
@@ -80,14 +83,11 @@ export default {
     check(){
         return (this.user) ? false : true;
     }
-    
   },
   methods:{
     userSet(data){
       this.user = data;
-      fs.writeFile('.env.override',`DB_USER=${this.user}`, 'utf8', err => {
-        if (err) throw err;
-      });
+      store.set('user', data);
     },
     showScript(){
       this.scriptShow = !this.scriptShow;
@@ -173,9 +173,7 @@ export default {
     },
     resetUser(){
       this.user = '';
-      fs.writeFile('.env.override',`DB_USER=${this.user}`, 'utf8', err => {
-        if (err) throw err;
-      });
+      store.set('user', this.user);
     },
     compTodo(index){
       this.todoList[index].comp = !this.todoList[index].comp;
@@ -207,14 +205,16 @@ export default {
       this.reminderFunc();
     },
     reminderFunc(){
-    fs.readFile('reminder.json', 'utf8', (err, data) => {
-        if (err) throw err;
-        else {
-          fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+      if (fs.existsSync('./reminder.json')){
+        fs.readFile('reminder.json', 'utf8', (err, data) => {
             if (err) throw err;
+            else {
+              fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
+                if (err) throw err;
+              });
+            }
           });
-        }
-      });
+      }
     },
     checkTime(){
       for(let i = 0; i < this.reminderList.length; i++){
@@ -262,7 +262,7 @@ export default {
     this.mountReminder(false);
     this.mountTodo(false);
     this.mountHistory(false);
-    this.user = process.env.DB_USER;
+    this.user = store.get('user');
     this.checkTime();
   }
 }

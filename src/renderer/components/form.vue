@@ -1,9 +1,21 @@
 <template>
 <div class="container">
-  <div class="field">
-    <label class="label is-unselectable">Customer Name</label>
-    <div class="control">
-      <input class="input is-rounded" type="text" placeholder="Customer Name" v-model="custName" @keyup.enter="setFocus">
+  <div class="field is-grouped">
+    <div class="field">
+      <label class="label is-unselectable">Customer Name</label>
+      <div class="control">
+        <input class="input is-rounded" type="text" placeholder="Customer Name" v-model="custName" @keyup.enter="setFocus">
+      </div>
+    </div>
+    <div class="field">
+      <label class="label is-unselectable">Quick Tags</label>
+        <div class="field is-grouped">
+          <template v-for="(tag, index) in quickTags">
+            <div :key="index" class="control">
+                <button :class="['button', 'is-rounded','is-outlined',tag.colour]" @click="qtCopy(tag.name)"><p>{{tag.name}}</p></button>
+            </div>
+          </template>
+        </div>
     </div>
   </div>
   <div class="field">
@@ -37,8 +49,13 @@ const {
 } = require('electron');
 const moment = require('moment');
 const fs = require('fs');
+const Store = require('../../store.js');
+const store = new Store({
+  configName: 'config'
+});
 
 import recentApp from './recent.vue'
+import { Snackbar } from 'buefy/dist/components/snackbar'
 
 export default {
   data() {
@@ -51,7 +68,8 @@ export default {
       show : false,
       recent: [],
       restored : false,
-      indexRestored: null
+      indexRestored: null,
+      quickTags:[]
     }
   },
   props: ['user'],
@@ -74,6 +92,11 @@ export default {
         this.capNow();
         let format = moment().format('ddd Do MMM hh:mm');
         clipboard.writeText(this.custName + ' - ' + this.notes + ' - ' + format + ' - ' + this.user);
+        Snackbar.open({
+          message: 'Copied',
+          actionText: null,
+          duration: 2000
+        });
         this.storage(format)
       }
     },
@@ -127,7 +150,7 @@ export default {
         this.restored = false;
       }else {
           if (this.recent.length > 4){
-            this.recent.splice(0,1);
+            this.recent.splice(this.recent.length,1);
             this.recent.push({
               name: this.custName,
               notes: this.notes,
@@ -165,7 +188,18 @@ export default {
     },
     naShow(){
       this.$emit('naShow');
+    },
+    qtCopy(e){
+      Snackbar.open({
+        message: 'Copied',
+        actionText: null,
+        duration: 2000
+      });
+      clipboard.writeText(`[${e}]`);
     }
+  },
+  beforeMount(){
+    this.quickTags = store.get('qt');
   }
 }
 </script>
