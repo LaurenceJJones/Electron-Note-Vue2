@@ -1,5 +1,5 @@
 <template>
-<div :class="['modal',{ 'is-active': show}]">
+<div :class="['modal',{ 'is-active': this.$store.state.show.reminder}]">
   <div class="modal-background" @click="close"></div>
   <div class="modal-card is-unselectable">
     <header class="modal-card-head">
@@ -24,8 +24,8 @@
       </div>
     </section>
     <footer class="modal-card-foot">
-      <button class="button is-rounded is-primary is-pulled-right" @click="addReminder">
-        <p>Add Remimder</p>
+      <button class="button is-rounded is-success is-pulled-right" @click="addReminder">
+        <p>Add Reminder</p>
       </button>
     </footer>
   </div>
@@ -35,7 +35,6 @@
 const moment = require('moment');
 
 export default {
-  props: ['show'],
   data() {
     return {
       currentDate: null,
@@ -44,27 +43,32 @@ export default {
     }
   },
   watch: {
-    show(){
-      this.setData();
+    check(){
+      this.currentTime = moment().format('HH:mm');
+      this.currentDate = moment().format('YYYY-MM-DD');
+    }
+  },
+  computed :{
+    check(){
+      return this.$store.state.show.reminder;
     }
   },
   methods: {
     close() {
       this.customerName = '';
-      this.$emit('close');
-    },
-    setData(){
-      this.currentTime = moment().format('HH:mm');
-      this.currentDate = moment().format('YYYY-MM-DD');
+      this.$store.commit('show', 'reminder');
     },
     addReminder(){
       if (this.customerName){
-        this.$emit('addReminder',{
-          'date': this.currentDate,
-          'time': this.currentTime,
-          'customerName': this.customerName,
-          'comp' : false,
-          'class': 'is-primary'
+        this.$store.dispatch('create',{
+          loc : 'reminder',
+          data : {
+            'date': this.currentDate,
+            'time': this.currentTime,
+            'customerName': this.customerName,
+            'comp' : false,
+            'class': 'is-success'
+          }
         });
         this.close();
       }

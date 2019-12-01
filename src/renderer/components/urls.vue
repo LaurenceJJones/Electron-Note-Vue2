@@ -1,5 +1,5 @@
 <template>
-<div :class="['modal',{ 'is-active': show}]" id="sb">
+<div :class="['modal',{ 'is-active': this.$store.state.show.urls}]" id="sb">
   <div class="modal-background" @click="close"></div>
   <div class="modal-card is-unselectable">
     <header class="modal-card-head">
@@ -19,13 +19,12 @@
 <script>
 const fs = require('fs');
 export default {
-  props: ['show'],
   data: () => ({
     urls : ''
   }),
   methods: {
     close(){
-      this.$emit('close');
+      this.$store.commit('show','urls');
     }
   },
   beforeMount(){

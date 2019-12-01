@@ -2,31 +2,31 @@
 <nav class="navbar is-light is-fixed-bottom" role="navigation" aria-label="main navigation">
   <div class="tabs is-toggle is-toggle-rounded is-centered">
     <ul>
-      <li @click="historyShow" :class="{'is-active' : historyActive}">
+      <li @click="historyShow" :class="{'is-active' : this.$store.state.show.history}">
         <a>
           <span class="icon is-small"><i class="fas fa-history"></i></span>
           <span>History</span>
         </a>
       </li>
-      <li @click="todoShow" :class="{'is-active' : todoActive}">
+      <li @click="todoShow" :class="{'is-active' : this.$store.state.show.todo}">
         <a>
           <span class="icon is-small"><i class="far fa-check-square"></i></span>
           <span>Todo List</span>
         </a>
       </li>
-      <li @click="collectionShow" :class="{'is-active' : collectionActive}">
+      <li @click="collectionShow" :class="{'is-active' : this.$store.state.show.collection}">
         <a>
           <span class="icon is-small"><i class="fas fa-list-ol"></i></span>
           <span>Collections</span>
         </a>
       </li>
-      <li @click="scriptShow" :class="{'is-active' : scriptActive}">
+      <li @click="scriptShow" :class="{'is-active' : this.$store.state.show.script}">
         <a>
           <span class="icon is-small"><i class="fas fa-cogs"></i></span>
           <span>Script Builder</span>
         </a>
       </li>
-      <li  @click="urlsShow" :class="{'is-active' : urlsActive}">
+      <li  @click="urlsShow" :class="{'is-active' : this.$store.state.show.urls}">
         <a>
           <span class="icon is-small"><i class="far fa-file-alt"></i></span>
           <span>URLS</span>
@@ -38,22 +38,21 @@
 </template>
 <script>
 export default {
-  props: ['historyActive','todoActive','scriptActive', 'collectionActive', 'urlsActive'],
   methods: {
     historyShow() {
-      this.$emit('historyShow');
+      this.$store.commit('show','history');
     },
     todoShow(){
-      this.$emit('todoShow');
+      this.$store.commit('show','todo');
     },
     scriptShow(){
-      this.$emit('scriptShow');
+      this.$store.commit('show','script');
     },
     collectionShow(){
-      this.$emit('collectionShow');
+      this.$store.commit('show','collection');
     },
     urlsShow(){
-      this.$emit('urlsShow');
+      this.$store.commit('show','urls');
     }
   }
 }

@@ -1,5 +1,5 @@
 <template>
-    <div :class="['modal',{ 'is-active': show}]" id="sb">
+    <div :class="['modal',{ 'is-active': this.$store.state.show.script}]" id="sb">
         <div class="modal-background" @click="close"></div>
         <div class="modal-card is-unselectable">
             <header class="modal-card-head">
@@ -11,7 +11,7 @@
                     <div class="tile is-parent">
                         <div class="tile is-child is-6">
                               <p class="panel-heading">
-                                  <a @click="setSnip(prev.key,prev.snip,true)"><i class="fas fa-chevron-left"></i> {{prev.key}}</a>
+                                  <a @click="setSnip('')"><i class="fas fa-chevron-left"></i> {{this.$store.state.scriptKey}}</a>
                                     <div class="dropdown is-hoverable is-pulled-right">
                                         <div class="dropdown-trigger">
                                             <button class="button" aria-haspopup="true" aria-controls="dropdown-menu4">
@@ -31,8 +31,8 @@
                                     </div>
                                 </p>
                                 <div class="panel is-clipped">
-                                    <a class="panel-block" v-for="(snip, key) in filteredSnippets" @click="setSnip(key,snip,false)" :key="key">
-                                        <span class="panel-icon"><i :class="['fas', {'fa-database': !prev.key},{'fa-file-code': prev.key}]" aria-hidden="true"></i></span>
+                                    <a class="panel-block" v-for="(snip, key) in filteredSnippets" @click="setSnip(key)" :key="key">
+                                        <span class="panel-icon"><i :class="['fas',  {'fa-database': !snip.script},{'fa-file-code': snip.script}]" aria-hidden="true"></i></span>
                                         <p>{{key}}</p>
                                     </a>
                                 </div>
@@ -49,7 +49,7 @@
                 <input class="input is-rounded" type="text" placeholder="Search">
                 <div class="is-pulled-right">
                     <input class="input is-rounded" type="text" v-model="saveName">
-                    <button class="button is-primary" @click="saveSnip">Save - <span v-if="this.prev.key">Script</span><span v-else>Table</span></button>
+                    <button class="button is-success" @click="saveSnip">Save - <span v-if="this.$store.state.scriptKey">Script</span><span v-else>Table</span></button>
                 </div>
             </footer>
         </div>
@@ -68,122 +68,103 @@ const fs = require('fs');
         // BROWSE
         // SET DELETED ON
         // USE IN customer
-        props: ['show'],
         data() {
             return {
-                script: '',
                 saveName: '',
-                filteredSnippets:{},
-                prev: {
-                    key: '',
-                    snip: ''
+            }
+        },
+        computed : {
+            filteredSnippets(){
+                return this.$store.getters.filteredScripts
+            },
+            script:{
+                get: function(){
+                    return this.$store.state.script
                 },
-                snippets:{}
+                set: function(e){
+                    this.$store.commit('editKey', {
+                        loc : 'script',
+                        val : e
+                    });
+                }
             }
         },
         methods: {
             close() {
-                this.$emit('close');
-                this.script = '';
+                this.$store.commit('show','script');                        
+                this.$store.commit('editKey', {
+                    loc : 'script',
+                    val : ''
+                });
             },
             copy() {
 
             },
-            setSnip(key,snip,prev){
-                if(prev){
-                    this.prev.key = '';
-                    this.filteredSnippets = this.prev.snip;
-                }else{
-                    if (snip['script'] === undefined){
-                        this.prev.key = key;
-                        this.prev.snip = this.filteredSnippets;
-                        this.filteredSnippets = this.filteredSnippets[key];
-                    }else{
-                        this.script = snip.script;
+            setSnip(key){
+                if (key){
+                    if (this.filteredSnippets[key].script){
+                        this.$store.commit('editKey', {
+                            loc : 'script',
+                            val : this.filteredSnippets[key].script
+                        });
+                        return;
                     }
                 }
+                this.$store.commit('editKey', {
+                    loc : 'scriptKey',
+                    val : key
+                });
             },
             saveSnip(){
-            let key = this.prev.key;
-            let name = this.saveName;
-            if (key){
-                if(name && this.script){
-                    Object.defineProperty(this.snippets[key], name, {
-                        value: {script: this.script},
-                        enumerable: true,
-                        configurable: true,
-                        writable: true
+                if (this.$store.state.scriptKey && this.saveName.length > 0 && this.saveName !== 'script'){
+                    this.$store.dispatch('modify',{
+                        loc : 'scripts',
+                        orgIndex : 0,
+                        key : this.$store.state.scriptKey,
+                        subKey : this.saveName,
+                        val : { script : this.$store.state.script},
+                        type : 'put'
                     });
-                    this.writeScripts();
-                }
-            }else{
-                if(name){
-                    Object.defineProperty(this.snippets, name, {
-                        value: {},
-                        enumerable: true,
-                        configurable: true,
-                        writable: true
-                    });
-                    this.writeScripts();
-                }
-            }
-            },
-            writeScripts(){
-                if (fs.existsSync('./scripts.json')) {
-                    fs.readFile('scripts.json', 'utf8', (err, data) => {
-                        if (err) throw err;
-                        else {
-                        fs.writeFile('scripts.json', JSON.stringify(this.snippets), 'utf8', err => {
-                            if (err) throw err;
-                            this.prev.key = '';
-                            this.saveName = '';
-                            this.script = '';
-                            this.filteredSnippets = this.snippets;
+                    this.setSnip('');
+                    this.saveName = '';
+                }else{
+                    if (this.saveName.length > 0 && this.saveName !== 'script'){
+                        this.$store.dispatch('modify',{
+                            loc : 'scripts',
+                            orgIndex : 0,
+                            key : this.saveName,
+                            val : {},
+                            type : 'put'
                         });
-                        }
-                    });
-                    }else {
-                        fs.writeFile('scripts.json', JSON.stringify(this.snippets), 'utf8', err => {
-                            if (err) throw err;
-                            this.prev.key = '';
-                            this.saveName = '';
-                            this.script = '';
-                            this.filteredSnippets = this.snippets;
-                        });
+                        this.setSnip(this.saveName);
+                        this.saveName = '';
                     }
-            },
-            readScripts(){
-                if (fs.existsSync('./scripts.json')) {
-                    fs.readFile('scripts.json', 'utf8', (err, data) => {
-                        this.snippets = JSON.parse(data);
-                        this.filteredSnippets = this.snippets;
-                        this.prev.snip = this.filteredSnippets;
-                    });
                 }
             },
             insert(method){
-                if (this.script.length > 0 && this.prev.key){
-                    let eachLine = this.script.split('\n');
+                if (this.$store.state.script.length > 0 && this.$store.state.scriptKey){
+                    let eachLine = this.$store.state.script.split('\n');
                     for (let i = 0; i < eachLine.length; i++) {
                         const element = eachLine[i];
                         if (element === ""){
                             eachLine.splice(i, 1);
                         }
                     }
-                        switch (method) {
-                        case 'deleted':
-                            if (eachLine.length > 2){
-                                eachLine.splice(2, 0, 'SET DELETED OFF \nACTIVATE SCREEN');
-                                eachLine.splice(eachLine.length, 0, `SET DELETED ON \nUSE IN ${this.prev.key}`);
-                            }
-                            break;
+                    switch (method) {
+                    case 'deleted':
+                        if (eachLine.length > 2){
+                            eachLine.splice(2, 0, 'SET DELETED OFF \nACTIVATE SCREEN');
+                            eachLine.splice(eachLine.length, 0, `SET DELETED ON \nUSE IN ${this.$store.state.scriptKey}`);
                         }
-                        this.script = eachLine.join('\n');
+                        break;
+                    }
+                    eachLine = eachLine.join('\n');
+                        this.$store.commit('editKey', {
+                            loc : 'script',
+                            val : eachLine
+                        });
                     }
                 }
-        },
-        beforeMount(){
-            this.readScripts();
         }
     }
 </script>

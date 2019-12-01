@@ -5,16 +5,20 @@ const {
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
-const Store = require('../store.js');
-const store = new Store({
+const Write = require('../write.js');
+const write = new Write({
   // We'll call our data file 'user-preferences'
   configName: 'config',
   defaults: {
     // 800x600 is the default size of our window
     bounds: { width: 800, height: 600 },
     user: '',
-    qt:[
-      {name: "PDF", colour:"is-danger"}
+    quickTags:[
+      {
+        name: "PDF",
+        colour:"is-danger",
+        val: "Reinstalled PDF driver"
+      }
     ]
   }
 });
@@ -25,7 +29,7 @@ let win;
 function createWindow() {
   // First we'll get our height and width. This will be the defaults if there wasn't anything saved
   // Pass those values in to the BrowserWindow options
-  let { width, height } = store.get('bounds');
+  let { width, height } = write.get('bounds');
   win = new BrowserWindow({
     width: width,
     height: height
@@ -58,8 +62,8 @@ function createWindow() {
       width,
       height
     } = win.getBounds();
-    store.set('bounds', {width , height});
-  })
+    write.set('bounds', {width , height});
+  });
 }
 app.on('ready', () => {
   createWindow();

@@ -2,7 +2,7 @@
     <div class="is-inline-flex">
         <div class="box master">
             <div class="is-inline-flex">
-                <p v-if="!edit">{{theKey}}</p>
+                <p v-if="!edit">{{collection.key}}</p>
                 <input type="text" v-else v-model="currentKey">
                 <span class="icon has-text-white" @click="complete" v-if="!edit">
                     <i class="far fa-check-square"></i>
@@ -19,7 +19,7 @@
                 <div class="media-content">
                 <div class="content">
                     <ul>
-                        <li v-for="item in collection">{{item}}</li>
+                        <li v-for="(item , index) in collection.names" :key="index">{{item}}</li>
                         <li v-if="edit"><input type="text" v-model="currentAdd" @keyup.enter="add"></li>
                     </ul>
                 </div>
@@ -31,7 +31,7 @@
 </template>
 <script>
 export default {
-    props: ['collection', 'theKey'],
+    props : ['collection' , 'index'],
     data(){
         return {
             edit: false,
@@ -41,25 +41,37 @@ export default {
     },
     methods:{
         editMode(){
-            if(!this.edit){
+            if (!this.edit){
                 this.edit = !this.edit;
-                this.currentKey = this.theKey;
             }else{
-                if(this.currentKey){
-                    this.edit = !this.edit;
-                    (this.currentKey !==  this.theKey) ? this.$emit('changeKey', this.currentKey, this.theKey) : null;
-                }
+                this.edit = !this.edit;
+                this.$store.dispatch('modify',{
+                    loc : 'collection',
+                    orgIndex : this.index,
+                    key : 'key',
+                    val : this.currentKey,
+                    type : 'put'
+                });
             }
         },
         add(){
-            if (this.currentAdd){
-                this.$emit('add', this.currentAdd , this.theKey);
-                this.currentAdd = '';
-            }
+            this.$store.dispatch('modify',{
+                loc : 'collection',
+                orgIndex : this.index,
+                key : 'names',
+                val : this.currentAdd,
+                type : 'push'
+            });
         },
         complete(){
-            this.$emit('complete', this.theKey)
+            this.$store.dispatch('delete', {
+                loc : 'collection',
+                orgIndex : this.index
+            });
         }
+    },
+    beforeMount(){
+        this.currentKey = this.collection.key;
     }
 }
 </script>

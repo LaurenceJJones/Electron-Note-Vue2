@@ -1,5 +1,5 @@
 <template>
-  <div :class="['modal',{ 'is-active': show}]" id="coll">
+  <div :class="['modal',{ 'is-active': this.$store.state.show.collection}]" id="coll">
     <div class="modal-background" @click="close"></div>
     <div class="modal-card is-unselectable">
       <header class="modal-card-head">
@@ -7,8 +7,8 @@
         <button class="delete" aria-label="close" @click="close"></button>
       </header>
       <section class="modal-card-body">
-        <template v-if="!edit" v-for="(collection, key) in collections">
-          <collection-master :key="key" :collection="collection" :theKey="key" @add="addName" @changeKey="changeKey" @complete="removeKey"/>
+        <template v-for="(collection, index) in collections">
+          <collection-master :key="index" :collection="collection" :index="index"/>
         </template>
       </section>
     <footer class="modal-card-foot">
@@ -28,65 +28,24 @@ import collectionMaster from './collectionMaster.vue';
     components:{
       collectionMaster
     },
-    props: ['show'],
-    data() {
-      return {
-        collections: {},
-        edit: false
+    computed: {
+      collections(){
+        return this.$store.state.files.collection;
       }
     },
     methods: {
       close() {
-        this.$emit('close');
-      },
-      removeKey(oldKey){
-        delete this.collections[oldKey];
-        this.edit = !this.edit;
-        this.edit = !this.edit;
-        this.writeColl();
-      },
-      changeKey(newKey, oldKey){
-            Object.defineProperty(this.collections, newKey,
-                Object.getOwnPropertyDescriptor(this.collections, oldKey));
-            this.removeKey(oldKey)
-      },
-      addName(name , index){
-        this.collections[index].push(name);
-        this.writeColl();
+        this.$store.commit('show','collection');
       },
       addNew(){
-        if (this.collections[""] === undefined){
-          this.collections[""] = [];
-          this.edit = !this.edit;
-          this.edit = !this.edit;
-        }
-      },
-      writeColl(){
-        if (fs.existsSync('./collection.json')) {
-          fs.readFile('collection.json', 'utf8', (err, data) => {
-            if (err) throw err;
-            else {
-              fs.writeFile('collection.json', JSON.stringify(this.collections), 'utf8', err => {
-                if (err) throw err;
-              });
-            }
+          this.$store.dispatch('create', {
+              loc : 'collection',
+              data : {
+                  key : '',
+                  names : []
+              }
           });
-        }else {
-          fs.writeFile('collection.json', JSON.stringify(this.collections), 'utf8', err => {
-            if (err) throw err;
-          });
-        }
-      },
-      readColl(){
-        if (fs.existsSync('./collection.json')) {
-          fs.readFile('collection.json', 'utf8', (err, data) => {
-            this.collections = JSON.parse(data);
-          });
-        }
       }
-    },
-    beforeMount(){
-      this.readColl();
-    }
+  }
   }
 </script>

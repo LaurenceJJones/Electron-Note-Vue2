@@ -1,26 +1,24 @@
 <template>
   <div>
       <section class="section" v-if="check">
-        <login @userSet="userSet"/>
+        <login />
       </section>
       <div v-else>
-        <user-top :user="user" @resetUser="resetUser"/>
+        <user-top />
         <section class="section">
-          <form-top @historyMount="mountHistory" :user="user" @naShow="showNA"/>
-          <reminder-main @reminderShow="showReminder" :reminders="reminderList" @snoozeIndex="indexSnooze" @reminderComp="compReminder" @reminderDelete="deleteReminder"/>
-          <nav-bottom
-          @historyShow="showHistory" @todoShow="showTodo" @scriptShow="showScript" @collectionShow="showCollection" @urlsShow="showUrls"
-          :historyActive="historyShow" :todoActive="todoShow" :scriptActive="scriptShow" :collectionActive="collectionShow" :urlsActive="urlsShow"
-          />
+          <form-top />
+          <reminder-main />
+          <nav-bottom />
         </section>
       </div>
-      <new-reminder :show="reminderShow" @close="showReminder" @addReminder="mountReminder"/>
-      <na :show="naShow" @close="showNA" :user="user"/>
-      <todo :show="todoShow" @close="showTodo" :todoList="todoList" @newTodo="mountTodo" @compTodo="compTodo"></todo>
-      <history :show="historyShow"  @close="showHistory" :historys="filteredHistory" @filterHistory="historyFilter" @countInc="historyFilter"/>
-      <script-builder :show="scriptShow" @close="showScript"/>
-      <urls :show="urlsShow" @close="showUrls"/>
-      <collections :show="collectionShow" @close="showCollection"/>
+      <new-reminder />
+      <na />
+      <todo />
+      <history />
+      <script-builder />
+      <urls />
+      <collections />
+      <sys-conf />
   </div>
 </template>
 
@@ -38,33 +36,13 @@ import newReminder from './components/reminder.vue';
 import scriptBuilder from './components/script.vue';
 import collections from './components/collection.vue';
 import urls from './components/urls.vue';
+import sysConf from './components/sysConf.vue';
 
 const fs = require('fs');
 const moment = require('moment');
 const notifier = require('node-notifier');
-const Store = require('../store.js');
-const store = new Store({
-  configName: 'config'
-});
 
 export default {
-  data(){
-    return{
-      user: null,
-      historyShow : false,
-      naShow : false,
-      todoShow : false,
-      reminderShow: false,
-      scriptShow: false,
-      collectionShow: false,
-      urlsShow: false,
-      obj : {"table":[]},
-      filteredHistory : [],
-      count : 10,
-      todoList : [],
-      reminderList: []
-    }
-  },
   components: {
     navBottom,
     formTop,
@@ -77,139 +55,18 @@ export default {
     newReminder,
     scriptBuilder,
     collections,
-    urls
+    urls,
+    sysConf
   },
   computed : {
     check(){
-        return (this.user) ? false : true;
+        return (this.$store.state.config.user) ? false : true;
     }
   },
   methods:{
-    userSet(data){
-      this.user = data;
-      store.set('user', data);
-    },
-    showScript(){
-      this.scriptShow = !this.scriptShow;
-    },
-    showCollection(){
-      this.collectionShow = !this.collectionShow;
-    },
-    showTodo(){
-      this.todoShow = !this.todoShow;
-    },
-    showNA(){
-      this.naShow = !this.naShow;
-    },
-    showHistory(){
-      this.historyShow = !this.historyShow;
-      if(!this.historyShow){
-        this.count = 10;
-        this.historyFilter('');
-      }
-    },
-    showReminder(){
-      this.reminderShow = !this.reminderShow;
-    },
-    showUrls(){
-      this.urlsShow = !this.urlsShow;
-    },
-    mountHistory(data){
-      if (data){
-        this.obj.table.push(data);
-        this.historyFilter('');
-      }else {
-        if (fs.existsSync('./history.json')) {
-          fs.readFile('history.json', 'utf8', (err, data) => {
-            this.obj = JSON.parse(data);
-            this.historyFilter('');
-          });
-        }
-      }
-    },
-    mountTodo(data){
-      if (data){
-        this.todoList.push(data);
-        this.writeTodo();
-      }  else {
-        if (fs.existsSync('./todo.json')) {
-          fs.readFile('todo.json', 'utf8', (err, data) => {
-            this.todoList = JSON.parse(data);
-          });
-        }
-      }
-    },
-    writeTodo(){
-      if (fs.existsSync('./todo.json')) {
-        fs.readFile('todo.json', 'utf8', (err, data) => {
-          if (err) throw err;
-          else {
-            fs.writeFile('todo.json', JSON.stringify(this.todoList), 'utf8', err => {
-              if (err) throw err;
-            });
-          }
-        });
-      }else {
-        fs.writeFile('todo.json', JSON.stringify(this.todoList), 'utf8', err => {
-          if (err) throw err;
-        });
-      }
-    },
-    mountReminder(data){
-      if (data){
-        this.reminderList.push(data);
-        this.reminderFunc();
-      }else {
-        if (fs.existsSync('./reminder.json')) {
-          fs.readFile('reminder.json', 'utf8', (err, data) => {
-            this.reminderList = JSON.parse(data);
-          });
-        }
-      }
-    },
-    resetUser(){
-      this.user = '';
-      store.set('user', this.user);
-    },
-    compTodo(index){
-      this.todoList[index].comp = !this.todoList[index].comp;
-      this.writeTodo();
-    },
-    historyFilter(data){
-      let bol = data !== '' ? true : false;
-      if (bol){
-        this.count += 10;
-        let filteredHistory = this.obj.table.filter((history) => {
-          return history.name.toLowerCase().includes(data.toLowerCase()) || history.date.toLowerCase().includes(data.toLowerCase()) || history.notes.toLowerCase().includes(data.toLowerCase());
-        });
-        this.filteredHistory = filteredHistory.slice(filteredHistory.length - this.count, filteredHistory.length);
-      }else {
-        this.count += 10;
-        this.filteredHistory = this.obj.table.slice(this.obj.table.length - this.count, this.obj.table.length);
-      }
-    },
-    indexSnooze(index, time){
-      this.reminderList[index].time = moment(this.reminderList[index].time, 'HH:mm').add(parseInt(time[0]), 'm').format('HH:mm');
-      this.reminderFunc();
-    },
-    compReminder(index){
-      this.reminderList[index].comp = true;
-      this.reminderFunc();
-    },
-    deleteReminder(index){
-      this.reminderList.splice(index,1);
-      this.reminderFunc();
-    },
-    reminderFunc(){
-      if(fs.existsSync('./reminder.json')){
-        fs.writeFile('reminder.json', JSON.stringify(this.reminderList), 'utf8', err => {
-          if (err) throw err;
-        });
-      }
-    },
     checkTime(){
-      for(let i = 0; i < this.reminderList.length; i++){
-        const element = this.reminderList[i];
+      for(let i = 0; i < this.$store.state.files.reminder.length; i++){
+        const element = this.$store.state.files.reminder[i];
         switch(element.date){
           case moment().format('YYYY-MM-DD'):
           if(moment(element.time, 'HH:mm').isSameOrBefore()){
@@ -230,7 +87,7 @@ export default {
               if(moment(element.time,'HH:mm').diff(moment(), 'minutes') < 45){
                 element.class = 'is-warning';
               }else{
-                element.class = 'is-primary'
+                element.class = 'is-success'
               }
             }
           break;
@@ -238,7 +95,7 @@ export default {
           if(moment(element.date, 'YYYY-MM-DD').isSameOrBefore()){
             element.class = 'is-danger';
           }else if(moment(element.date, 'YYYY-MM-DD').isSameOrAfter()){
-            element.class = 'is-primary';
+            element.class = 'is-success';
           }
         }
       }
@@ -247,17 +104,19 @@ export default {
       let diff  = end.diff(now);
       setTimeout(() => {
       this.checkTime();
-      this.reminderFunc();
+      this.$store.commit('writeData', {loc: 'reminder'})
       }, diff);
+    },
+    checkDay(){
+      let diffDay = moment().endOf('day').add( 1 , 'm').diff(moment());
+      setTimeout(() => {
+        this.checkDay();
+        this.$store.commit('initDays', moment().format('YYYY-MM-DD'));
+      }, diffDay);
     }
   },
   created() {
-    this.mountReminder(false);
-    this.mountTodo(false);
-    this.mountHistory(false);
-    this.user = store.get('user');
-  },
-  mounted(){
+    this.$store.dispatch('init');
     this.checkTime();
   }
 }

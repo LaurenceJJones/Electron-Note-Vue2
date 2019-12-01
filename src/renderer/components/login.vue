@@ -9,7 +9,7 @@
         </div>
         <div class="field">
           <div class="control">
-            <button class="button is-rounded is-primary is-medium" @click="setUser">Confirm</button>
+            <button class="button is-rounded is-success is-medium" @click="setUser">Confirm</button>
           </div>
         </div>
       </div>
@@ -31,7 +31,7 @@ export default {
         return string.charAt(0).toUpperCase() + string.slice(1);
       };
       this.user = cap(this.user)
-      this.$emit('userSet', this.user);
+      this.$store.commit('userSet', this.user);
     }
   }
 }
