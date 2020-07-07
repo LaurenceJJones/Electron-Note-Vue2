@@ -32,7 +32,10 @@ function createWindow() {
   let { width, height } = write.get('bounds');
   win = new BrowserWindow({
     width: width,
-    height: height
+    height: height,
+    webPreferences: {
+      nodeIntegration: true
+  }
   });
   
   if (isDevelopment) {

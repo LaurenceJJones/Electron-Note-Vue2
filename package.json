@@ -31,6 +31,9 @@
     "vuex": "^3.1.1"
   },
   "build": {
-    "extraFiles": ["node_modules/dbfstreammemo", "node_modules/moment"]
+    "extraFiles": [
+      "node_modules/dbfstreammemo",
+      "node_modules/moment"
+    ]
   }
 }
